@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Sauce Lessons</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      background: radial-gradient(ellipse at center, #1a0a0a 0%, #000 70%);
+      color: #fff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      animation: fadeIn 1.2s ease-out;
+      min-height: 100vh;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideDown {
+      from {
+        transform: translateY(-60px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    header {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0a0a0a 100%);
+      position: relative;
+      text-align: center;
+      padding: 2rem;
+      animation: slideDown 1s ease-out;
+      border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 0, 0, 0.03) 50%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+    
+    .main-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #ff0000 0%, #ff6b6b 50%, #ff0000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: rgba(255, 0, 0, 0.4);
+      transform: translateY(-50%) translateX(-2px);
+    }
+    
+    .checkout-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+    
+    .product-summary {
+      background: linear-gradient(145deg, rgba(26, 26, 26, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 0, 0, 0.08);
+      border-radius: 28px;
+      padding: 3rem;
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+    
+    .product-image {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 0, 0, 0.15);
+    }
+    
+    .product-image img {
+      width: 70%;
+      height: 70%;
+      object-fit: cover;
+      border-radius: 16px;
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    .product-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff0000 0%, #ff4444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    
+    .product-price {
+      font-size: 2.5rem;
+      color: #fff;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+    
+    .product-description {
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-weight: 400;
+      font-size: 0.95rem;
+    }
+    
+    .product-includes {
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 300;
+      padding: 1.5rem;
+      background: rgba(255, 0, 0, 0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 0, 0, 0.1);
+    }
+    
+    .checkout-form {
+      background: linear-gradient(145deg, rgba(26, 26, 26, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 0, 0, 0.08);
+      border-radius: 28px;
+      padding: 3rem;
+    }
+    
+    .form-section {
+      margin-bottom: 3rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: rgba(255, 0, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .payment-methods {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    .payment-method-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .payment-method-card:hover {
+      border-color: rgba(255, 0, 0, 0.2);
+      background: rgba(255, 0, 0, 0.02);
+    }
+    
+    .payment-method-card.selected {
+      border-color: rgba(255, 0, 0, 0.5);
+      background: rgba(255, 0, 0, 0.05);
+    }
+    
+    .payment-method-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .payment-icon {
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      padding: 8px;
+      overflow: hidden;
+    }
+    
+    .payment-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
+    .payment-details h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+    
+    .payment-details p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .payment-method-content {
+      display: none;
+    }
+    
+    .payment-method-card.selected .payment-method-content {
+      display: block;
+    }
+    
+    .payment-address {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      margin: 1rem 0;
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      position: relative;
+      text-align: center;
+    }
+    
+    .cashapp-username {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 1rem 0;
+      border: 1px solid rgba(0, 200, 0, 0.2);
+      position: relative;
+      text-align: center;
+      color: #00c800;
+    }
+    
+    .copy-btn {
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    .copy-btn:hover {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: rgba(255, 0, 0, 0.4);
+    }
+    
+    .payment-warning {
+      background: rgba(255, 165, 0, 0.1);
+      border: 1px solid rgba(255, 165, 0, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #ffab00;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    
+    .cashapp-warning {
+      background: rgba(0, 200, 0, 0.1);
+      border: 1px solid rgba(0, 200, 0, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #00c800;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    
+    .qr-section {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+    
+    .qr-code {
+      width: 180px;
+      height: 180px;
+      background: #fff;
+      border-radius: 12px;
+      margin: 0 auto 1rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: bold;
+      font-size: 0.9rem;
+      overflow: hidden;
+    }
+    
+    .qr-code img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
+    .order-summary {
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(255, 0, 0, 0.05);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 0, 0, 0.1);
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      border-top: 1px solid rgba(255, 0, 0, 0.2);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .complete-purchase-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+      color: #fff;
+      padding: 1.5rem 2rem;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 20px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: block;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 1.1rem;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
+      margin-top: 2rem;
+    }
+    
+    .complete-purchase-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+    
+    .complete-purchase-btn:hover::before {
+      left: 100%;
+    }
+    
+    .complete-purchase-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ff1a1a 0%, #e60000 100%);
+    }
+    
+    .complete-purchase-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .security-notice {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem 1rem;
+      }
+      
+      .product-summary,
+      .checkout-form {
+        padding: 2rem;
+      }
+      
+      .back-btn {
+        position: static;
+        transform: none;
+        margin-bottom: 1rem;
+        display: inline-block;
+      }
+      
+      .header-content {
+        margin-top: 1rem;
+      }
+      
+      .product-title {
+        font-size: 1.5rem;
+      }
+      
+      .product-price {
+        font-size: 2rem;
+      }
+    }
+    
+    .loading-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ff0000, #ff4444, #ff0000);
+      z-index: 9999;
+      animation: loadingBar 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes loadingBar {
+      0% { width: 0%; }
+      60% { width: 85%; }
+      100% { width: 100%; opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-bar"></div>
+  
+  <header>
+    <div class="header-content">
+      <a href="/" class="back-btn">← Back to Store</a>
+      <div class="main-title">🛒 Checkout</div>
+    </div>
+  </header>
+  
+  <div class="checkout-container">
+    <div class="product-summary">
+      <div class="product-image">
+        <img id="productImage" src="" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="product-title" id="productTitle">Loading...</div>
+      <div class="product-price" id="productPrice">$0</div>
+      <div class="product-description" id="productDescription">Loading product details...</div>
+      <div class="product-includes" id="productIncludes">Loading...</div>
+    </div>
+    
+    <div class="checkout-form">
+      <div class="form-section">
+        <h3 class="section-title">Contact Information</h3>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="customerEmail" class="form-input" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telegram Username (for delivery)</label>
+          <input type="text" id="customerTelegram" class="form-input" placeholder="@yourusername" required>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h3 class="section-title">Payment Method</h3>
+        <div class="payment-methods">
+          <div class="payment-method-card" onclick="selectPaymentMethod('cashapp')">
+            <div class="payment-method-header">
+              <div class="payment-icon">
+                <img src="cashapplogo.jpg" alt="CashApp">
+              </div>
+              <div class="payment-details">
+                <h3>CashApp</h3>
+                <p>Send payment via CashApp - Manual verification within 1 hour</p>
+              </div>
+            </div>
+            
+            <div class="payment-method-content">
+              <div class="cashapp-username">$realmoneygettinnih</div>
+              
+              <div class="cashapp-warning">
+                💸 Send exactly the amount shown below to this CashApp tag. Include your order ID in the note.
+              </div>
+              
+              <button class="copy-btn" onclick="copyToClipboard('cashappUsername')">📋 Copy CashApp Tag</button>
+              
+              <div class="qr-section">
+                <div class="qr-code" id="cashappQrCode">
+                  <img src="" alt="CashApp QR Code">
+                </div>
+                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Scan to open CashApp</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="payment-method-card" onclick="selectPaymentMethod('bitcoin')">
+            <div class="payment-method-header">
+              <div class="payment-icon">
+                <img src="bitcoinlogo.jpg" alt="Bitcoin">
+              </div>
+              <div class="payment-details">
+                <h3>Bitcoin Payment</h3>
+                <p>Secure blockchain payment - Auto-verified within 10 minutes</p>
+              </div>
+            </div>
+            
+            <div class="payment-method-content">
+              <div class="payment-address" id="btcAddress">bc1qsgxr8rdu3hnw9hfydvyd6h80nxhxydf8nu9kul</div>
+              
+              <div class="payment-warning">
+                ⚠️ Send the EXACT amount shown in the order summary below. Our system automatically detects payments to this address.
+              </div>
+              
+              <button class="copy-btn" onclick="copyToClipboard('btcAddress')">📋 Copy Bitcoin Address</button>
+              
+              <div class="qr-section">
+                <div class="qr-code" id="qrCode">
+                  <img src="" alt="Bitcoin QR Code">
+                </div>
+                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Scan with your Bitcoin wallet</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="order-summary">
+        <h3 class="section-title">Order Summary</h3>
+        <div class="summary-row">
+          <span id="summaryTitle">Loading...</span>
+          <span id="summaryPrice">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Processing Fee</span>
+          <span>Included</span>
+        </div>
+        <div class="summary-total">
+          <span>Total (USD)</span>
+          <span id="totalPrice">$0.00</span>
+        </div>
+      </div>
+      
+      <button class="complete-purchase-btn" id="completePurchaseBtn" disabled>Select Payment Method</button>
+      
+      <div class="security-notice">
+        🔒 All payments are secure and verified automatically
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let currentProduct = null;
+    let selectedPaymentMethod = null;
+    
+    function loadProductData() {
+      console.log('Loading product data...');
+      
+      let productData = localStorage.getItem('selectedProduct') || sessionStorage.getItem('selectedProduct');
+      
+      console.log('Raw product data:', productData);
+      
+      if (productData) {
+        try {
+          currentProduct = JSON.parse(productData);
+          console.log('Parsed product data:', currentProduct);
+          
+          const productImage = document.getElementById('productImage');
+          const productTitle = document.getElementById('productTitle');
+          const productPrice = document.getElementById('productPrice');
+          const productDescription = document.getElementById('productDescription');
+          const productIncludes = document.getElementById('productIncludes');
+          const summaryTitle = document.getElementById('summaryTitle');
+          const summaryPrice = document.getElementById('summaryPrice');
+          const totalPrice = document.getElementById('totalPrice');
+          
+          if (productImage) productImage.src = currentProduct.image || '';
+          if (productImage) productImage.alt = currentProduct.title || '';
+          if (productTitle) productTitle.textContent = currentProduct.title || 'Unknown Product';
+          if (productPrice) productPrice.textContent = '$' + (currentProduct.price || 0);
+          if (productDescription) productDescription.innerHTML = currentProduct.description || 'No description available';
+          if (productIncludes) productIncludes.textContent = '✅ Includes: ' + (currentProduct.includes || 'No details available');
+          if (summaryTitle) summaryTitle.textContent = currentProduct.title || 'Unknown Product';
+          if (summaryPrice) summaryPrice.textContent = '$' + (currentProduct.price || 0) + '.00';
+          if (totalPrice) totalPrice.textContent = '$' + (currentProduct.price || 0) + '.00';
+          
+          generateQRCode(currentProduct.price);
+          
+          console.log('Product data loaded successfully');
+          
+        } catch (error) {
+          console.error('Error parsing product data:', error);
+          alert('Error loading product data: ' + error.message);
+        }
+      } else {
+        console.warn('No product data found');
+        alert('No product selected. Redirecting to store...');
+        window.location.href = '/';
+      }
+    }
+    
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      event.currentTarget.classList.add('selected');
+      
+      const btn = document.getElementById('completePurchaseBtn');
+      btn.disabled = false;
+      
+      switch(method) {
+        case 'cashapp':
+          btn.textContent = 'Place Order & Send CashApp Payment';
+          break;
+        case 'bitcoin':
+          btn.textContent = 'Place Order & Track Bitcoin Payment';
+          break;
+      }
+    }
+    
+    function generateQRCode(amount) {
+      const cashappQrElement = document.getElementById('cashappQrCode');
+      if (cashappQrElement) {
+        const cashappImg = cashappQrElement.querySelector('img');
+        if (cashappImg) {
+          cashappImg.src = 'https://cash.app/qr/$realmoneygettinnih';
+          cashappImg.onerror = function() {
+            this.parentElement.innerHTML = '<div style="font-size: 0.8rem; padding: 1rem; color: #666;">CashApp<br>$realmoneygettinnih</div>';
+          };
+        }
+      }
+      
+      const qrElement = document.getElementById('qrCode');
+      if (qrElement) {
+        const qrImg = qrElement.querySelector('img');
+        if (qrImg) {
+          qrImg.src = 'bitcoinqrcodejpg';
+          qrImg.onerror = function() {
+            this.parentElement.innerHTML = '<div style="font-size: 0.8rem; padding: 1rem; color: #666;">Bitcoin Address<br>bc1qsgxr8rdu3hnw9hfydvyd6h80nxhxydf8nu9kul<br><strong>$' + amount + '</strong></div>';
+          };
+        }
+      }
+    }
+    
+    function generateOrderId() {
+      return 'SL' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+    
+    function trackPurchase(orderId, product, payment, email, telegram) {
+      const purchaseData = {
+        orderId: orderId,
+        product: product,
+        paymentMethod: payment,
+        email: email,
+        telegram: telegram,
+        timestamp: new Date().toISOString(),
+        status: 'pending',
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        btcAddress: 'bc1qsgxr8rdu3hnw9hfydvyd6h80nxhxydf8nu9kul',
+        cashappTag: '$realmoneygettinnih',
+        expectedAmount: product.price
+      };
+      
+      try {
+        let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+        purchases.push(purchaseData);
+        localStorage.setItem('purchases', JSON.stringify(purchases));
+        console.log('Purchase tracked:', purchaseData);
+        return true;
+      } catch (error) {
+        console.error('Error tracking purchase:', error);
+        return false;
+      }
+    }
+    
+    function processCashAppPayment(orderId, amount, email, telegram) {
+      alert('Order #' + orderId + ' created!\n\n💸 CashApp Payment Instructions:\n\n1. Send exactly $' + amount + ' to: $realmoneygettinnih\n\n2. Include "' + orderId + '" in the payment note\n\n3. Your order will be processed within 1 hour after payment\n\n4. Track your order status on the tracking page\n\nRedirecting to order tracking now...');
+      
+      setTimeout(() => {
+        window.location.href = '/track?order=' + orderId;
+      }, 3000);
+    }
+    
+    function processBitcoinPayment(orderId, amount, email, telegram) {
+      const address = 'bc1qsgxr8rdu3hnw9hfydvyd6h80nxhxydf8nu9kul';
+      
+      alert('Order #' + orderId + ' created!\n\n₿ Bitcoin Payment Instructions:\n\n1. Send exactly $' + amount + ' USD worth of Bitcoin to:\n' + address + '\n\n2. Payment will be automatically verified within 10 minutes\n\n3. You\'ll receive real-time updates on the tracking page\n\nRedirecting to order tracking now...');
+      
+      setTimeout(() => {
+        window.location.href = '/track?order=' + orderId;
+      }, 3000);
+    }
+    
+    function copyToClipboard(elementId) {
+      let text = '';
+      
+      if (elementId === 'cashappUsername') {
+        text = '$realmoneygettinnih';
+      } else {
+        const element = document.getElementById(elementId);
+        text = element.textContent;
+      }
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const element = elementId === 'cashappUsername' ? 
+          document.querySelector('.cashapp-username') : 
+          document.getElementById(elementId);
+        
+        const originalText = element.textContent;
+        element.textContent = 'Copied!';
+        element.style.color = '#00ff00';
+        element.style.background = 'rgba(0, 255, 0, 0.1)';
+        
+        setTimeout(() => {
+          element.textContent = originalText;
+          element.style.color = '';
+          element.style.background = '';
+        }, 2000);
+      }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        alert('Copied to clipboard!');
+      });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing...');
+      loadProductData();
+      
+      document.getElementById('completePurchaseBtn').addEventListener('click', function() {
+        console.log('Complete purchase button clicked');
+        
+        const email = document.getElementById('customerEmail').value.trim();
+        const telegram = document.getElementById('customerTelegram').value.trim();
+        
+        console.log('Form data:', { email, telegram, currentProduct, selectedPaymentMethod });
+        
+        if (!email || !telegram) {
+          alert('Please fill in all required fields');
+          return;
+        }
+        
+        if (!selectedPaymentMethod) {
+          alert('Please select a payment method');
+          return;
+        }
+        
+        if (!currentProduct) {
+          alert('Product data not found. Please go back and select a product.');
+          return;
+        }
+        
+        const orderId = generateOrderId();
+        const amount = currentProduct.price;
+        
+        console.log('Processing order:', orderId, amount, selectedPaymentMethod);
+        
+        const tracked = trackPurchase(orderId, currentProduct, selectedPaymentMethod, email, telegram);
+        
+        if (!tracked) {
+          alert('Error creating order. Please try again.');
+          return;
+        }
+        
+        switch(selectedPaymentMethod) {
+          case 'cashapp':
+            processCashAppPayment(orderId, amount, email, telegram);
+            break;
+          case 'bitcoin':
+            processBitcoinPayment(orderId, amount, email, telegram);
+            break;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
